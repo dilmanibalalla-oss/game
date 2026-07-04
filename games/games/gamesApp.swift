@@ -1,9 +1,3 @@
-//
-//  gamesApp.swift
-//  games
-//
-//  Created by student5 on 2026-06-14.
-//
 
 import SwiftUI
 
