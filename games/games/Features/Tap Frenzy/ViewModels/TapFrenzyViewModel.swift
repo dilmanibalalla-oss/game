@@ -1,115 +1,100 @@
-import Foundation
 import SwiftUI
 import Combine
 
 class TapFrenzyViewModel: ObservableObject {
-    @Published var score = 0
-    @Published var level = 1
-    @Published var timeRemaining: TimeInterval = 10.0
-    @Published var isGameOver = false
+    // Game State
+    @Published var score: Int = 0
+    @Published var level: Int = 1
+    @Published var comboMultiplier: Int = 1
+    @Published var ballPosition: CGPoint = CGPoint(x: 200, y: 400)
+    @Published var ballColor: Color = .blue
     @Published var ballScale: CGFloat = 1.0
-    private var lastTapTime: Date = Date.distantPast
-    private var comboMultiplier = 1
+    @Published var isGameOver: Bool = false
     
+    // Internal Logic
+    private var lastTapTime: Date = .distantPast
+    private var comboTimer: AnyCancellable?
+    private var gameTimer: AnyCancellable?
+    private var roundTimer: AnyCancellable?
     
-    @Published var bonusPosition: CGPoint? = nil
-    @Published var trapPosition: CGPoint? = nil
-    private let sessionManager = SessionManager()
+    private var roundTimeLeft: Double = 10.0
+    private var currentRound: Int = 1
+    private var isBonusActive: Bool = false
     
-    @AppStorage("tapFrenzyHighScore") var highScore = 0
-    
-    private var timer: AnyCancellable?
-    
-    init() { startTimer() }
-    
-    func startTimer() {
-        timer = Timer.publish(every: 0.1, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in self?.tick() }
+    init() {
+        startRound()
     }
     
-    private func tick() {
-            guard !isGameOver else { return }
-            
-            let shrinkRate = 0.005 + (Double(level) * 0.015)
-            ballScale = max(0.1, ballScale - shrinkRate)
-            
-            timeRemaining -= 0.1
-            if timeRemaining <= 0 { endGame() }
-            
-            // Spawn items more frequently at higher levels
-            let spawnChance = max(5, 50 - (level * 5))
-            if Int.random(in: 1...spawnChance) == 1 {
-                spawnItems()
-            }
-        }
-    
-    private func spawnItems() {
-     
-            bonusPosition = CGPoint(x: CGFloat.random(in: 50...300), y: CGFloat.random(in: 100...500))
-            // Disappears after 1 second
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                self?.bonusPosition = nil
-            }
-            
-        
-            trapPosition = CGPoint(x: CGFloat.random(in: 50...300), y: CGFloat.random(in: 100...500))
-          
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                self?.trapPosition = nil
-            }
-        }
-    
-    func processClick(isInsideBall: Bool, isBonus: Bool = false) {
-            guard !isGameOver else { return }
-            
-            let oldLevel = level // Store current level
-            
-            if isBonus {
-                score += 50
-                bonusPosition = nil
-            } else if isInsideBall {
-                let now = Date()
-                if now.timeIntervalSince(lastTapTime) <= 0.5 { comboMultiplier += 1 }
-                else { comboMultiplier = 1 }
-                lastTapTime = now
-                score += 1 * comboMultiplier
+    func processClick(isInsideBall: Bool) {
+        if isInsideBall {
+            let now = Date()
+            // Check Combo (within 0.5s)
+            if now.timeIntervalSince(lastTapTime) < 0.5 {
+                comboMultiplier = min(comboMultiplier + 1, 10)
             } else {
-                score = max(0, score - 50)
                 comboMultiplier = 1
             }
+            lastTapTime = now
             
-            level = (score / 100) + 1
+            let points = isBonusActive ? 200 : 100
+            score += (points * comboMultiplier)
             
-            if level > oldLevel {
-                ballScale = 1.0
+            moveBall()
+        } else {
+            // Penalty for miss
+            comboMultiplier = 1
+            score = max(0, score - 50)
+        }
+    }
+    
+    private func moveBall() {
+        let newX = CGFloat.random(in: 50...350)
+        let newY = CGFloat.random(in: 100...700)
+        withAnimation(.spring()) {
+            ballPosition = CGPoint(x: newX, y: newY)
+        }
+    }
+    
+    private func startRound() {
+        roundTimeLeft = 10.0
+        
+        // Timer for ball movement and shrinking
+        gameTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect().sink { [weak self] _ in
+            guard let self = self else { return }
+            self.roundTimeLeft -= 0.1
+            self.ballScale = CGFloat(self.roundTimeLeft / 10.0)
+            
+            if self.roundTimeLeft <= 0 {
+                self.endRound()
             }
         }
+        
+        // Timer for color changes (Random Bonus/Penalty)
+        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+            let isBonus = Bool.random()
+            self.ballColor = isBonus ? .green : .gray
+            self.isBonusActive = isBonus
+            self.moveBall()
+        }
+    }
+    
+    private func endRound() {
+        gameTimer?.cancel()
+        if currentRound < 3 {
+            currentRound += 1
+            level = currentRound
+            startRound()
+        } else {
+            isGameOver = true
+            // Save high score logic would go here
+        }
+    }
+    
     func resetGame() {
         score = 0
         level = 1
-        timeRemaining = 10.0
+        currentRound = 1
         isGameOver = false
-        ballScale = 1.0
-        comboMultiplier = 1
-        bonusPosition = nil
-        trapPosition = nil
-        lastTapTime = Date.distantPast
-        startTimer() // Restart the timer
-    }
-    
-    func endGame() {
-        isGameOver = true
-        if score > highScore { highScore = score }
-        
-        let coords = sessionManager.generateGridCoordinates() // Use the new grid system
-            let newSession = GameSession(
-                mode: "Tap Frenzy", // or appropriate name
-                score: score,
-                timestamp: Date(),
-                latitude: coords.lat,
-                longitude: coords.lon
-            )
-            sessionManager.save(newSession)
+        startRound()
     }
 }
