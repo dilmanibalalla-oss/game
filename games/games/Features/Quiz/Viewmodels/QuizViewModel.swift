@@ -83,12 +83,13 @@ class QuizViewModel: ObservableObject {
     }
     
     private func saveGameSession() {
+        let coords = sessionManager.generateGridCoordinates() // Use the new grid system
         let newSession = GameSession(
             mode: "Quiz - \(selectedDifficulty?.rawValue ?? "General")",
             score: score,
             timestamp: Date(),
-            latitude: 6.9271, // Example coordinates (Colombo)
-            longitude: 79.8612
+            latitude: coords.lat,
+            longitude: coords.lon
         )
         sessionManager.save(newSession)
     }

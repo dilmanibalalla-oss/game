@@ -19,10 +19,10 @@ struct ContentView: View {
                 Label("Stats", systemImage: "chart.bar.fill")
             }
             
-            // Tab 3: Locations
+            // Tab 3: Map of Games
             NavigationStack {
-                Text("Map View")
-                    .navigationTitle("Locations")
+                MapView()
+                    .navigationTitle("Map of Games")
             }
             .tabItem {
                 Label("Map", systemImage: "map.fill")

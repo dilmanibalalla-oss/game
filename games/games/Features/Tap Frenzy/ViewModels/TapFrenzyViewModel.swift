@@ -86,22 +86,31 @@ class TapFrenzyViewModel: ObservableObject {
                 ballScale = 1.0
             }
         }
+    func resetGame() {
+        score = 0
+        level = 1
+        timeRemaining = 10.0
+        isGameOver = false
+        ballScale = 1.0
+        comboMultiplier = 1
+        bonusPosition = nil
+        trapPosition = nil
+        lastTapTime = Date.distantPast
+        startTimer() // Restart the timer
+    }
     
     func endGame() {
         isGameOver = true
         if score > highScore { highScore = score }
         
-        let newSession = GameSession(
-            mode: "Tap Frenzy",
-            score: score,
-            timestamp: Date(),
-            latitude: 6.9271,
-            longitude: 79.8612
-        )
-        sessionManager.save(newSession)
-    }
-    
-    func resetGame() {
-        score = 0; level = 1; timeRemaining = 10.0; ballScale = 1.0; isGameOver = false
+        let coords = sessionManager.generateGridCoordinates() // Use the new grid system
+            let newSession = GameSession(
+                mode: "Tap Frenzy", // or appropriate name
+                score: score,
+                timestamp: Date(),
+                latitude: coords.lat,
+                longitude: coords.lon
+            )
+            sessionManager.save(newSession)
     }
 }

@@ -139,13 +139,13 @@ struct LightItUpView: View {
         gameTickTimer?.cancel()
         if score > highScore { highScore = score }
         
-        // Integration: Save session data
+        let coords = sessionManager.generateGridCoordinates()
         let newSession = GameSession(
             mode: "Light It Up",
             score: score,
             timestamp: Date(),
-            latitude: 6.9271,
-            longitude: 79.8612
+            latitude: coords.lat,
+            longitude: coords.lon
         )
         sessionManager.save(newSession)
     }

@@ -2,11 +2,12 @@ import SwiftUI
 
 struct TapFrenzyView: View {
     @StateObject private var viewModel = TapFrenzyViewModel()
+    
     private var buttonScale: CGFloat {
-           
-            let levelGrowth = 1.0 + (0.10 * Double(viewModel.level - 1))
-            return min(2.0, viewModel.ballScale * levelGrowth)
-        }
+        let levelGrowth = 1.0 + (0.10 * Double(viewModel.level - 1))
+        return min(2.0, viewModel.ballScale * levelGrowth)
+    }
+    
     var body: some View {
         ZStack {
             Color.pink.opacity(0.2).ignoresSafeArea()
@@ -17,29 +18,31 @@ struct TapFrenzyView: View {
                         .font(.headline)
                     
                     Text(String(format: "Time: %.1fs", viewModel.timeRemaining))
-                        .font(.largeTitle).bold()
+                        .font(.largeTitle)
+                        .bold()
                     
-                    GeometryReader { geo in
+                    GeometryReader { _ in
                         ZStack {
                             Circle()
-                                    .fill(Color.blue.gradient)
-                                    .frame(width: 150 * buttonScale) 
-                                    .onTapGesture { viewModel.processClick(isInsideBall: true) }
-                                    .overlay(Text("TAP!").bold().foregroundColor(.white))
+                                .fill(Color.blue.gradient)
+                                .frame(width: 150 * buttonScale)
+                                .onTapGesture { viewModel.processClick(isInsideBall: true) }
+                                .overlay(Text("TAP!").bold().foregroundColor(.white))
                             
-                            if viewModel.bonusPosition != nil {
+                            // Safely unwrap optionals to avoid binding errors
+                            if let bonus = viewModel.bonusPosition {
                                 Image(systemName: "star.fill")
                                     .foregroundColor(.yellow)
                                     .font(.system(size: 40))
-                                    .position(viewModel.bonusPosition!)
+                                    .position(bonus)
                                     .onTapGesture { viewModel.processClick(isInsideBall: true, isBonus: true) }
                             }
                             
-                            if viewModel.trapPosition != nil {
+                            if let trap = viewModel.trapPosition {
                                 Image(systemName: "exclamationmark.triangle.fill")
                                     .foregroundColor(.red)
                                     .font(.system(size: 40))
-                                    .position(viewModel.trapPosition!)
+                                    .position(trap)
                                     .onTapGesture { viewModel.processClick(isInsideBall: false) }
                             }
                         }
@@ -50,13 +53,22 @@ struct TapFrenzyView: View {
                 }
             } else {
                 VStack(spacing: 20) {
-                    Text("Game Over!").font(.largeTitle).bold()
-                    Text("Final Score: \(viewModel.score)").font(.title)
-                    Text("High Score: \(viewModel.highScore)").font(.headline).foregroundColor(.orange)
+                    Text("Game Over!")
+                        .font(.largeTitle)
+                        .bold()
                     
-                    Button("Play Again") { viewModel.resetGame() }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
+                    Text("Final Score: \(viewModel.score)")
+                        .font(.title)
+                    
+                    Text("High Score: \(viewModel.highScore)")
+                        .font(.headline)
+                        .foregroundColor(.orange)
+                    
+                    Button("Play Again") {
+                        viewModel.resetGame()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
                 }
             }
         }

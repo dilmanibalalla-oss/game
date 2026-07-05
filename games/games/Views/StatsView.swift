@@ -68,7 +68,6 @@ struct StatsView: View {
     }
 }
 
-// Helper component for layout consistency
 struct StatBox: View {
     let title: String
     let value: String
