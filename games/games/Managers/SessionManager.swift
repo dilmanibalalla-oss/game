@@ -4,7 +4,6 @@ import Foundation
 class SessionManager {
     private let key = "saved_game_sessions"
     
-    // Note: This must be an instance method
     func save(_ session: GameSession) {
         var sessions = fetchAll()
         sessions.append(session)
@@ -20,7 +19,6 @@ class SessionManager {
         }
         return decoded
     }
-    // Add to SessionManager.swift
     func generateGridCoordinates() -> (lat: Double, lon: Double) {
         // Defines a 10x10 grid (steps of 10)
         let grid = stride(from: 10.0, through: 90.0, by: 10.0).map { $0 }

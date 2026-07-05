@@ -2,10 +2,9 @@
 import Foundation
 import CoreLocation
 import Combine
-class LocationService: NSObject, ObservableObject, CLLocationManagerDelegate {
+class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
     
-    // @Published also requires the Combine framework
     @Published var lastLocation: CLLocation?
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
     

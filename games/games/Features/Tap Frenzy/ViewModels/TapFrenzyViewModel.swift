@@ -31,7 +31,6 @@ class TapFrenzyViewModel: ObservableObject {
     private func tick() {
             guard !isGameOver else { return }
             
-            // This keeps the rapid shrinking effect active
             let shrinkRate = 0.005 + (Double(level) * 0.015)
             ballScale = max(0.1, ballScale - shrinkRate)
             

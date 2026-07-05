@@ -3,7 +3,6 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         TabView {
-            // Tab 1: Games
             NavigationStack {
                 GamesHubView()
             }
@@ -11,7 +10,6 @@ struct ContentView: View {
                 Label("Games", systemImage: "gamecontroller.fill")
             }
             
-            // Tab 2: Stats
             NavigationStack {
                 StatsView()
             }
@@ -19,7 +17,6 @@ struct ContentView: View {
                 Label("Stats", systemImage: "chart.bar.fill")
             }
             
-            // Tab 3: Map of Games
             NavigationStack {
                 MapView()
                     .navigationTitle("Map of Games")
@@ -28,9 +25,8 @@ struct ContentView: View {
                 Label("Map", systemImage: "map.fill")
             }
             
-            // Tab 4: Settings
             NavigationStack {
-                Text("App Settings")
+                SettingsView()
                     .navigationTitle("Settings")
             }
             .tabItem {

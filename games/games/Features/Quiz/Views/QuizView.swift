@@ -10,7 +10,6 @@ struct QuizView: View {
                 Color.pink.opacity(0.2).ignoresSafeArea()
                 
                 if !hasSelectedDifficulty {
-                    // Difficulty Selection Screen
                     VStack(spacing: 20) {
                         Text("Select Difficulty").font(.largeTitle).bold()
                         ForEach(Difficulty.allCases) { diff in
@@ -29,7 +28,6 @@ struct QuizView: View {
                         }
                     }
                 } else {
-                    // Quiz Gameplay Screen
                     Group {
                         switch viewModels.state {
                         case .loading:
