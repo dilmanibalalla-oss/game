@@ -67,8 +67,14 @@ struct LightItUpView: View {
         }
         .onAppear { setupGame() }
         .onReceive(roundTimer) { _ in
-            if !isGameOver && roundTime > 0 { roundTime -= 1 }
-            else if roundTime == 0 { endGame() }
+            // Only process if the game is active
+            if !isGameOver {
+                if roundTime > 0 {
+                    roundTime -= 1
+                } else {
+                    endGame()
+                }
+            }
         }
         .sheet(isPresented: $showingHighScores) {
             VStack(spacing: 16) {
@@ -135,8 +141,12 @@ struct LightItUpView: View {
     }
     
     private func endGame() {
+    
+        guard !isGameOver else { return }
+        
         isGameOver = true
         gameTickTimer?.cancel()
+        
         if score > highScore { highScore = score }
         
         let coords = sessionManager.generateGridCoordinates()
@@ -148,6 +158,8 @@ struct LightItUpView: View {
             longitude: coords.lon
         )
         sessionManager.save(newSession)
+        
+     
     }
     
     private func resetGame() {

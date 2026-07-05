@@ -6,14 +6,26 @@ struct MapView: View {
     @State private var showingScore = false
     private let sessionManager = SessionManager()
     
+    private func pinColor(for mode: String) -> Color {
+        switch mode {
+        case "Light It Up":
+            return .pink
+        case "Tap Frenzy":
+            return .green
+        case "Quiz":
+            return .orange
+        default:
+            return .blue
+        }
+    }
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 Color.blue.opacity(0.1).ignoresSafeArea()
                 
-                // Using enumerated() to offset overlapping pins
                 ForEach(Array(sessions.enumerated()), id: \.element.id) { index, session in
-                    let offset = CGFloat(index % 5) * 5 // Slight shift for collisions
+                    let offset = CGFloat(index % 5) * 5
                     let x = (CGFloat(session.longitude) / 100 * geometry.size.width) + offset
                     let y = (CGFloat(session.latitude) / 100 * geometry.size.height) + offset
                     
@@ -24,8 +36,10 @@ struct MapView: View {
                         VStack(spacing: 2) {
                             Image(systemName: "mappin.circle.fill")
                                 .font(.system(size: 30))
-                                .foregroundStyle(.red)
+                                // Explicitly casting the result to ensure SwiftUI renders it
+                                .foregroundStyle(self.pinColor(for: session.mode))
                                 .shadow(radius: 2)
+                            
                             Text(session.mode)
                                 .font(.caption2)
                                 .bold()

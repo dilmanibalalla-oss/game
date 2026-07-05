@@ -8,7 +8,6 @@ class QuizService {
                         type: String = "multiple") async throws -> [Question] {
         let timestamp = Int(Date().timeIntervalSince1970)
 
-        // Build URL components safely
         var components = URLComponents(string: "https://opentdb.com/api.php")
         var queryItems: [URLQueryItem] = [
             URLQueryItem(name: "amount", value: String(amount)),
