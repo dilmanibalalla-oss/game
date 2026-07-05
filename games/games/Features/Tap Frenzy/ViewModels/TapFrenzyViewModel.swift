@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import CoreLocation
 
 class TapFrenzyViewModel: ObservableObject {
     // Game State
@@ -15,20 +16,22 @@ class TapFrenzyViewModel: ObservableObject {
     private var lastTapTime: Date = .distantPast
     private var comboTimer: AnyCancellable?
     private var gameTimer: AnyCancellable?
-    private var roundTimer: AnyCancellable?
+    
+    // Added Location Support
+    private let locationManager = LocationManager()
     
     private var roundTimeLeft: Double = 10.0
     private var currentRound: Int = 1
     private var isBonusActive: Bool = false
     
     init() {
+        locationManager.requestPermissions() // Request on init
         startRound()
     }
     
     func processClick(isInsideBall: Bool) {
         if isInsideBall {
             let now = Date()
-            // Check Combo (within 0.5s)
             if now.timeIntervalSince(lastTapTime) < 0.5 {
                 comboMultiplier = min(comboMultiplier + 1, 10)
             } else {
@@ -41,7 +44,6 @@ class TapFrenzyViewModel: ObservableObject {
             
             moveBall()
         } else {
-            // Penalty for miss
             comboMultiplier = 1
             score = max(0, score - 50)
         }
@@ -58,7 +60,6 @@ class TapFrenzyViewModel: ObservableObject {
     private func startRound() {
         roundTimeLeft = 10.0
         
-        // Timer for ball movement and shrinking
         gameTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect().sink { [weak self] _ in
             guard let self = self else { return }
             self.roundTimeLeft -= 0.1
@@ -69,8 +70,8 @@ class TapFrenzyViewModel: ObservableObject {
             }
         }
         
-        // Timer for color changes (Random Bonus/Penalty)
-        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
             let isBonus = Bool.random()
             self.ballColor = isBonus ? .green : .gray
             self.isBonusActive = isBonus
@@ -86,8 +87,20 @@ class TapFrenzyViewModel: ObservableObject {
             startRound()
         } else {
             isGameOver = true
-            // Save high score logic would go here
+            saveSession() // Save when game over
         }
+    }
+    
+    private func saveSession() {
+        let coord = locationManager.lastLocation?.coordinate
+        let newSession = GameSession(
+            mode: "Tap Frenzy",
+            score: score,
+            timestamp: Date(),
+            latitude: coord?.latitude ?? 0.0,
+            longitude: coord?.longitude ?? 0.0
+        )
+        SessionManager().save(newSession)
     }
     
     func resetGame() {

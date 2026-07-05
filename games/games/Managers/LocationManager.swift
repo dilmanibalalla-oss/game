@@ -1,10 +1,11 @@
-// Managers/LocationService.swift
 import Foundation
 import CoreLocation
 import Combine
+
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
     
+
     @Published var lastLocation: CLLocation?
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
     
@@ -12,18 +13,28 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBest
+        // Set the initial status
         self.authorizationStatus = manager.authorizationStatus
     }
-    
+
     func requestPermissions() {
         manager.requestWhenInUseAuthorization()
         manager.startUpdatingLocation()
     }
     
+
+    
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         self.authorizationStatus = manager.authorizationStatus
-        if authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways {
+        
+        switch manager.authorizationStatus {
+        case .authorizedWhenInUse, .authorizedAlways:
             manager.startUpdatingLocation()
+        case .denied, .restricted:
+            print("Location access denied or restricted.")
+            manager.stopUpdatingLocation()
+        default:
+            break
         }
     }
     
@@ -34,5 +45,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Location error: \(error.localizedDescription)")
+    }
+    
+    func getCurrentCoordinate() -> CLLocationCoordinate2D? {
+        return lastLocation?.coordinate
     }
 }

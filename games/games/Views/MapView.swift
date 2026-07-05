@@ -1,63 +1,49 @@
 import SwiftUI
+import MapKit
 
 struct MapView: View {
-    @State private var sessions: [GameSession] = []
-    @State private var selectedSession: GameSession?
-    @State private var showingScore = false
+    @State private var clusters: [SessionCluster] = []
+    @State private var selectedCluster: SessionCluster?
+    @State private var region = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 6.9271, longitude: 79.8612),
+        span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
+    )
+    
     private let sessionManager = SessionManager()
-    
-    private func pinColor(for mode: String) -> Color {
-        switch mode {
-        case "Light It Up":
-            return .pink
-        case "Tap Frenzy":
-            return .green
-        case "Quiz":
-            return .orange
-        default:
-            return .blue
-        }
-    }
-    
+
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                Color.blue.opacity(0.1).ignoresSafeArea()
-                
-                ForEach(Array(sessions.enumerated()), id: \.element.id) { index, session in
-                    let offset = CGFloat(index % 5) * 5
-                    let x = (CGFloat(session.longitude) / 100 * geometry.size.width) + offset
-                    let y = (CGFloat(session.latitude) / 100 * geometry.size.height) + offset
-                    
-                    Button {
-                        selectedSession = session
-                        showingScore = true
-                    } label: {
-                        VStack(spacing: 2) {
-                            Image(systemName: "mappin.circle.fill")
-                                .font(.system(size: 30))
-                                // Explicitly casting the result to ensure SwiftUI renders it
-                                .foregroundStyle(self.pinColor(for: session.mode))
-                                .shadow(radius: 2)
-                            
-                            Text(session.mode)
-                                .font(.caption2)
-                                .bold()
-                                .padding(4)
-                                .background(.ultraThinMaterial)
-                                .clipShape(RoundedRectangle(cornerRadius: 4))
-                        }
+        Map(coordinateRegion: $region, annotationItems: clusters) { cluster in
+            MapAnnotation(coordinate: cluster.coordinate) {
+                Button { selectedCluster = cluster } label: {
+                    VStack(spacing: 2) {
+                        Image(systemName: "mappin.circle.fill")
+                            .font(.system(size: 30))
+                            .foregroundColor(.red)
+                        // Shows count of sessions at this location
+                        Text("\(cluster.sessions.count)")
+                            .font(.caption2).bold()
+                            .padding(4).background(.ultraThinMaterial).clipShape(Circle())
                     }
-                    .position(x: x, y: y)
                 }
             }
         }
-        .navigationTitle("Map of Games")
-        .onAppear { self.sessions = sessionManager.fetchAll() }
-        .alert(selectedSession?.mode ?? "Game", isPresented: $showingScore, presenting: selectedSession) { _ in
-            Button("OK", role: .cancel) { }
-        } message: { session in
-            Text("Final Score: \(session.score)")
+        .navigationTitle("Game Map")
+        .onAppear(perform: loadAndCluster)
+        .sheet(item: $selectedCluster) { cluster in
+            SessionListView(cluster: cluster)
+        }
+    }
+
+    private func loadAndCluster() {
+        let allSessions = sessionManager.fetchAll()
+        
+
+        let grouped = Dictionary(grouping: allSessions) { session in
+            "\(round(session.latitude * 1000)/1000),\(round(session.longitude * 1000)/1000)"
+        }
+        
+        clusters = grouped.map { _, sessions in
+            SessionCluster(coordinate: sessions[0].coordinate, sessions: sessions)
         }
     }
 }

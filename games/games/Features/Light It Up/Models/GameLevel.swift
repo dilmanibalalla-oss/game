@@ -9,26 +9,33 @@ struct GameLevel {
     let countToLight: Int
     let activeColorsCount: Int
     
-    static func config(level: Int, round: Int) -> GameLevel {
-        let calculatedCards = min(12, 3 + (level * 2))
+    static func config(elapsedTime: TimeInterval, round: Int) -> GameLevel {
+        let level: Int = min(4, Int(elapsedTime / 15) + 1)
         
-        let calculatedDuration = max(0.25, 1.5 - (Double(level) * 0.1) - (Double(round) * 0.15))
+        let cards: Int
+        let baseDuration: TimeInterval
+        let toLight: Int
         
-        let columnCount = (calculatedCards <= 4) ? 2 : 3
-        let columns = Array(repeating: GridItem(.flexible()), count: columnCount)
+        switch level {
+        case 1: cards = 3; baseDuration = 1.5; toLight = 1
+        case 2: cards = 4; baseDuration = 1.2; toLight = 1
+        case 3: cards = 6; baseDuration = 1.0; toLight = 1
+        default: cards = 9; baseDuration = 0.8; toLight = 2
+        }
         
-        let countToLight = min(4, round)
-        
-        let colors = min(6, 1 + level)
+    
+        let finalDuration = max(0.2, baseDuration - (Double(round - 1) * 0.1))
+        let colors = min(3, round)
         
         return GameLevel(
             levelNumber: level,
             roundNumber: round,
-            cardCount: calculatedCards,
-            litDuration: calculatedDuration,
-            columns: columns,
-            countToLight: countToLight,
+            cardCount: cards,
+            litDuration: finalDuration,
+            columns: Array(repeating: GridItem(.flexible()), count: (cards > 4 ? 3 : 2)),
+            countToLight: toLight,
             activeColorsCount: colors
         )
     }
 }
+

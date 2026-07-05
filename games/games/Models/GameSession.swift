@@ -1,11 +1,6 @@
-//
-//  GameSession.swift
-//  games
-//
-//  Created by student5 on 2026-07-05.
-//
-
 import Foundation
+import CoreLocation
+
 struct GameSession: Codable, Identifiable {
     var id: UUID = UUID()
     var mode: String
@@ -13,5 +8,15 @@ struct GameSession: Codable, Identifiable {
     var timestamp: Date
     var latitude: Double
     var longitude: Double
+    
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
 }
 
+// Helper to group sessions by location
+struct SessionCluster: Identifiable {
+    let id = UUID()
+    let coordinate: CLLocationCoordinate2D
+    let sessions: [GameSession]
+}
