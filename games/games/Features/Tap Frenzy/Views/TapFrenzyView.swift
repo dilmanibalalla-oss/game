@@ -49,6 +49,7 @@ struct TapFrenzyView: View {
                         .font(.largeTitle.bold())
                     Text("Final Score: \(viewModel.score)")
                         .font(.title)
+                    ShareLink(item: "I just scored \(viewModel.score) on Tap Frenzy, beat that!")
                     Button(action: {
                         viewModel.resetGame()
                     }) {

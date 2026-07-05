@@ -18,7 +18,7 @@ class TapFrenzyViewModel: ObservableObject {
     private var gameTimer: AnyCancellable?
     
     // Added Location Support
-    private let locationManager = LocationManager()
+    private let locationManager = LocationManager.shared
     
     private var roundTimeLeft: Double = 10.0
     private var currentRound: Int = 1
@@ -87,14 +87,22 @@ class TapFrenzyViewModel: ObservableObject {
             startRound()
         } else {
             isGameOver = true
-            saveSession() // Save when game over
+            updateHighScore()
+            saveSession()
+        }
+    }
+    
+    private func updateHighScore() {
+        let current = UserDefaults.standard.integer(forKey: HighScoreKeys.tapFrenzy)
+        if score > current {
+            UserDefaults.standard.set(score, forKey: HighScoreKeys.tapFrenzy)
         }
     }
     
     private func saveSession() {
-        let coord = locationManager.lastLocation?.coordinate
-        let fallbackLat = 6.9271 + (coord == nil ? Double.random(in: -0.01...0.01) : 0.0)
-        let fallbackLon = 79.8612 + (coord == nil ? Double.random(in: -0.01...0.01) : 0.0)
+        let coord = locationManager.lastLocation?.coordinate ?? locationManager.lastKnownCoordinate
+        let fallbackLat = 6.9271
+        let fallbackLon = 79.8612
         let newSession = GameSession(
             mode: "Tap Frenzy",
             score: score,

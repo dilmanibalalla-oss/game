@@ -17,7 +17,7 @@ struct MapView: View {
     )
     
     private let sessionManager = SessionManager()
-    @StateObject private var locationManager = LocationManager()
+    @StateObject private var locationManager = LocationManager.shared
     @State private var didCenterOnUser = false
 
     private var annotations: [MapAnnotationItem] {

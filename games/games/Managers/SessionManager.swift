@@ -19,6 +19,11 @@ class SessionManager {
         }
         return decoded
     }
+    
+    func resetAllStats() {
+        UserDefaults.standard.removeObject(forKey: key)
+        HighScoreKeys.resetAll()
+    }
     func generateGridCoordinates() -> (lat: Double, lon: Double) {
         // Defines a grid around Colombo, Sri Lanka (latitude: 6.9271, longitude: 79.8612)
         // Steps of 0.05 within a 0.5 span

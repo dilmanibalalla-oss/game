@@ -52,4 +52,8 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
             }
         }
     }
+    
+    func cancelDailyNotification() {
+        center.removePendingNotificationRequests(withIdentifiers: ["daily-reminder"])
+    }
 }

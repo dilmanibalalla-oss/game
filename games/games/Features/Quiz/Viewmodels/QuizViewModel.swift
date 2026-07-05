@@ -10,7 +10,7 @@ class QuizViewModel: ObservableObject {
     @Published var currentIndex = 0
     @Published var score = 0
     @Published var streak = 0
-    @Published var highScore = UserDefaults.standard.integer(forKey: "QuizHighScore")
+    @Published var highScore = UserDefaults.standard.integer(forKey: HighScoreKeys.quiz)
     @Published var timeLeft = 15
     
     @Published var selectedDifficulty: Difficulty?
@@ -59,6 +59,7 @@ class QuizViewModel: ObservableObject {
     }
     
     func submitAnswer(_ answer: String) -> Bool {
+        timer?.cancel()
         let isCorrect = !answer.isEmpty && answer == questions[currentIndex].correct_answer
         let generator = UINotificationFeedbackGenerator()
         
@@ -68,24 +69,21 @@ class QuizViewModel: ObservableObject {
             streak += 1
             if score > highScore {
                 highScore = score
-                UserDefaults.standard.set(highScore, forKey: "QuizHighScore")
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                if self.currentIndex < self.questions.count - 1 {
-                    self.currentIndex += 1
-                    self.startQuestionTimer()
-                } else {
-                    self.timer?.cancel()
-                    self.state = .finished
-                    // Save the session when the quiz finishes
-                    self.saveGameSession()
-                }
+                UserDefaults.standard.set(highScore, forKey: HighScoreKeys.quiz)
             }
         } else {
             generator.notificationOccurred(.error)
             streak = 0
-            startQuestionTimer()
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if self.currentIndex < self.questions.count - 1 {
+                self.currentIndex += 1
+                self.startQuestionTimer()
+            } else {
+                self.state = .finished
+                self.saveGameSession()
+            }
         }
         
         return isCorrect

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct GamesHubView: View {
+    @State private var showHighScores = false
+    
     var body: some View {
         ZStack {
             Color.pink.opacity(0.2).ignoresSafeArea()
@@ -25,24 +27,30 @@ struct GamesHubView: View {
                 .padding(.bottom, 35)
                 
                 VStack(spacing: 40) {
-                    // Navigate to Tap Frenzy
                     NavigationLink(destination: TapFrenzyView()) {
                         GameButton(title: "Tap Frenzy", subtitle: "Fast-paced clicking action!", icon: "hand.tap.fill", color: .blue)
                     }.padding(10)
                     
-                    // Navigate to Light It Up
                     NavigationLink(destination: LightItUpView()) {
                         GameButton(title: "Light It Up", subtitle: "Whack-a-mole precision tiles!", icon: "lightbulb.fill", color: .purple)
                     }.padding(10)
                     
-                    // Navigate to Quiz Rush
                     NavigationLink(destination: QuizView()) {
                         GameButton(title: "Quiz Rush", subtitle: "Trivia powered by live API!", icon: "questionmark.circle.fill", color: .orange)
                     }.padding(10)
+                    
+                    Button { showHighScores = true } label: {
+                        GameButton(title: "High Scores", subtitle: "Your best scores across all games", icon: "trophy.fill", color: .green)
+                    }
+                    .padding(10)
                 }
                 
                 Spacer()
             }
+        }
+        .onAppear { HighScoreKeys.migrateIfNeeded() }
+        .sheet(isPresented: $showHighScores) {
+            HighScoresView()
         }
     }
 }

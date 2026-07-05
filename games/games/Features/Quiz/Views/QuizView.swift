@@ -93,6 +93,7 @@ struct QuizView: View {
                             VStack(spacing: 20) {
                                 Text("Quiz Finished!").font(.largeTitle).bold()
                                 Text("Final Score: \(viewModels.score)").font(.title)
+                                ShareLink(item: "I just scored \(viewModels.score) on Quiz Rush, beat that!")
                                 Button("Restart") { hasSelectedDifficulty = false }
                             }
                             

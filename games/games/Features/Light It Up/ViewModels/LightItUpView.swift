@@ -10,13 +10,13 @@ struct LightItUpView: View {
     @State private var isGameOver = false
     @State private var currentLevel = GameLevel.config(elapsedTime: 0, round: 1)
     @State private var cards: [Card] = []
-    @AppStorage("lightItUpHighScore") private var highScore = 0
+    @AppStorage(HighScoreKeys.lightItUp) private var highScore = 0
     
     @State private var showSettings = false
     @AppStorage("maxGameTime") private var maxGameTime: TimeInterval = 60
     @State private var showLevelFlash = false
     
-    @StateObject private var locationManager = LocationManager()
+    @StateObject private var locationManager = LocationManager.shared
     
     let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
     @State private var gameTickTimer: AnyCancellable?
@@ -130,9 +130,9 @@ struct LightItUpView: View {
     private func endGame() {
         isGameOver = true
         gameTickTimer?.cancel()
-        let coord = locationManager.lastLocation?.coordinate
-        let fallbackLat = 6.9271 + (coord == nil ? Double.random(in: -0.01...0.01) : 0.0)
-        let fallbackLon = 79.8612 + (coord == nil ? Double.random(in: -0.01...0.01) : 0.0)
+        let coord = locationManager.lastLocation?.coordinate ?? locationManager.lastKnownCoordinate
+        let fallbackLat = 6.9271
+        let fallbackLon = 79.8612
         let newSession = GameSession(mode: "Light It Up", score: score, timestamp: Date(),
                                      latitude: coord?.latitude ?? fallbackLat, longitude: coord?.longitude ?? fallbackLon)
         SessionManager().save(newSession) // Assumes SessionManager exists
@@ -149,6 +149,7 @@ struct LightItUpView: View {
             Text("Game Over").font(.largeTitle).bold()
             Text("Final Score: \(score)").font(.title)
             Text("High Score: \(highScore)").font(.subheadline)
+            ShareLink(item: "I just scored \(score) on Light It Up, beat that!")
             Button("Play Again") { setupGame() }.buttonStyle(.borderedProminent)
         }
     }
