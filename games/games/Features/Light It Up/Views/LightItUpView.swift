@@ -20,7 +20,7 @@ struct LightItUpView: View {
             
             if !isGameOver {
                 VStack(spacing: 20) {
-                    HStack {
+                HStack {
                         VStack(alignment: .leading) {
                             Text("Score: \(score)")
                                 .font(.title2)
