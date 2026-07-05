@@ -14,6 +14,7 @@ class QuizViewModel: ObservableObject {
     @Published var timeLeft = 15
     
     @Published var selectedDifficulty: Difficulty?
+    @Published var selectedCategory: QuizCategory?
     
     let questionCount = 10
     private var timer: AnyCancellable?
@@ -30,7 +31,10 @@ class QuizViewModel: ObservableObject {
         currentIndex = 0
         
         do {
-            self.questions = try await service.fetchQuestions(difficulty: selectedDifficulty?.rawValue)
+            self.questions = try await service.fetchQuestions(
+                category: selectedCategory?.id,
+                difficulty: selectedDifficulty?.rawValue
+            )
             self.questions = Array(self.questions.prefix(questionCount))
             self.state = .loaded
             startQuestionTimer()
@@ -54,7 +58,7 @@ class QuizViewModel: ObservableObject {
             }
     }
     
-    func submitAnswer(_ answer: String) {
+    func submitAnswer(_ answer: String) -> Bool {
         let isCorrect = !answer.isEmpty && answer == questions[currentIndex].correct_answer
         let generator = UINotificationFeedbackGenerator()
         
@@ -66,20 +70,25 @@ class QuizViewModel: ObservableObject {
                 highScore = score
                 UserDefaults.standard.set(highScore, forKey: "QuizHighScore")
             }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                if self.currentIndex < self.questions.count - 1 {
+                    self.currentIndex += 1
+                    self.startQuestionTimer()
+                } else {
+                    self.timer?.cancel()
+                    self.state = .finished
+                    // Save the session when the quiz finishes
+                    self.saveGameSession()
+                }
+            }
         } else {
             generator.notificationOccurred(.error)
             streak = 0
+            startQuestionTimer()
         }
         
-        if currentIndex < questions.count - 1 {
-            currentIndex += 1
-            startQuestionTimer()
-        } else {
-            timer?.cancel()
-            state = .finished
-            // Save the session when the quiz finishes
-            saveGameSession()
-        }
+        return isCorrect
     }
     
     private func saveGameSession() {

@@ -20,10 +20,12 @@ class SessionManager {
         return decoded
     }
     func generateGridCoordinates() -> (lat: Double, lon: Double) {
-        // Defines a 10x10 grid (steps of 10)
-        let grid = stride(from: 10.0, through: 90.0, by: 10.0).map { $0 }
-        let lat = grid.randomElement() ?? 50.0
-        let lon = grid.randomElement() ?? 50.0
-        return (lat + Double.random(in: -3...3), lon + Double.random(in: -3...3))
+        // Defines a grid around Colombo, Sri Lanka (latitude: 6.9271, longitude: 79.8612)
+        // Steps of 0.05 within a 0.5 span
+        let latGrid = stride(from: 6.7, through: 7.1, by: 0.05).map { $0 }
+        let lonGrid = stride(from: 79.6, through: 80.1, by: 0.05).map { $0 }
+        let lat = latGrid.randomElement() ?? 6.9271
+        let lon = lonGrid.randomElement() ?? 79.8612
+        return (lat + Double.random(in: -0.01...0.01), lon + Double.random(in: -0.01...0.01))
     }
 }

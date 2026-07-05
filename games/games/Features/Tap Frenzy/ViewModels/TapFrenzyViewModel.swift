@@ -93,12 +93,14 @@ class TapFrenzyViewModel: ObservableObject {
     
     private func saveSession() {
         let coord = locationManager.lastLocation?.coordinate
+        let fallbackLat = 6.9271 + (coord == nil ? Double.random(in: -0.01...0.01) : 0.0)
+        let fallbackLon = 79.8612 + (coord == nil ? Double.random(in: -0.01...0.01) : 0.0)
         let newSession = GameSession(
             mode: "Tap Frenzy",
             score: score,
             timestamp: Date(),
-            latitude: coord?.latitude ?? 0.0,
-            longitude: coord?.longitude ?? 0.0
+            latitude: coord?.latitude ?? fallbackLat,
+            longitude: coord?.longitude ?? fallbackLon
         )
         SessionManager().save(newSession)
     }
