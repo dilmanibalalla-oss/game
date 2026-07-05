@@ -11,7 +11,6 @@ struct LightItUpView: View {
     @State private var showingHighScores = false
     @AppStorage("lightItUpHighScore") private var highScore = 0
     
-    // Integration: Added SessionManager
     private let sessionManager = SessionManager()
     
     let roundTimer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()

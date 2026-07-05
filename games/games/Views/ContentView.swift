@@ -13,8 +13,7 @@ struct ContentView: View {
             
             // Tab 2: Stats
             NavigationStack {
-                Text("Leaderboard & Stats")
-                    .navigationTitle("Statistics")
+                StatsView()
             }
             .tabItem {
                 Label("Stats", systemImage: "chart.bar.fill")
