@@ -11,9 +11,10 @@ class TapFrenzyViewModel: ObservableObject {
     private var lastTapTime: Date = Date.distantPast
     private var comboMultiplier = 1
     
-    // Items that appear on screen
+    
     @Published var bonusPosition: CGPoint? = nil
     @Published var trapPosition: CGPoint? = nil
+    private let sessionManager = SessionManager()
     
     @AppStorage("tapFrenzyHighScore") var highScore = 0
     
@@ -86,7 +87,19 @@ class TapFrenzyViewModel: ObservableObject {
             }
         }
     
-    func endGame() { isGameOver = true; if score > highScore { highScore = score } }
+    func endGame() {
+        isGameOver = true
+        if score > highScore { highScore = score }
+        
+        let newSession = GameSession(
+            mode: "Tap Frenzy",
+            score: score,
+            timestamp: Date(),
+            latitude: 6.9271,
+            longitude: 79.8612
+        )
+        sessionManager.save(newSession)
+    }
     
     func resetGame() {
         score = 0; level = 1; timeRemaining = 10.0; ballScale = 1.0; isGameOver = false

@@ -7,9 +7,12 @@ struct LightItUpView: View {
     @State private var isGameOver = false
     @State private var currentLevel: GameLevel = GameLevel.config(forScore: 0)
     @State private var cards: [Card] = []
-    @State private var scoreScale: CGFloat = 1.0 
+    @State private var scoreScale: CGFloat = 1.0
     @State private var showingHighScores = false
     @AppStorage("lightItUpHighScore") private var highScore = 0
+    
+    // Integration: Added SessionManager
+    private let sessionManager = SessionManager()
     
     let roundTimer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
     @State private var gameTickTimer: AnyCancellable?
@@ -20,12 +23,12 @@ struct LightItUpView: View {
             
             if !isGameOver {
                 VStack(spacing: 20) {
-                HStack {
+                    HStack {
                         VStack(alignment: .leading) {
                             Text("Score: \(score)")
                                 .font(.title2)
                                 .bold()
-                                .scaleEffect(scoreScale) // Animation applied here
+                                .scaleEffect(scoreScale)
                             Text("Level: \(currentLevel.levelNumber)").font(.subheadline)
                             Text("Best: \(highScore)")
                                 .font(.caption)
@@ -56,8 +59,11 @@ struct LightItUpView: View {
                     .padding(25)
                 }
             } else {
-                Text("Final Score: \(score)").font(.largeTitle)
-                Button("Play Again") { resetGame() }
+                VStack {
+                    Text("Final Score: \(score)").font(.largeTitle)
+                    Button("Play Again") { resetGame() }
+                        .padding()
+                }
             }
         }
         .onAppear { setupGame() }
@@ -92,12 +98,10 @@ struct LightItUpView: View {
         if cards[index].isLit {
             let bonus = currentLevel.levelNumber * 2
             
-            // Trigger animation
             withAnimation(.spring(response: 0.2, dampingFraction: 0.4)) {
                 score += (10 + bonus)
                 scoreScale = 1.2
             }
-            // Reset scale after animation
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 withAnimation { scoreScale = 1.0 }
             }
@@ -135,6 +139,16 @@ struct LightItUpView: View {
         isGameOver = true
         gameTickTimer?.cancel()
         if score > highScore { highScore = score }
+        
+        // Integration: Save session data
+        let newSession = GameSession(
+            mode: "Light It Up",
+            score: score,
+            timestamp: Date(),
+            latitude: 6.9271,
+            longitude: 79.8612
+        )
+        sessionManager.save(newSession)
     }
     
     private func resetGame() {

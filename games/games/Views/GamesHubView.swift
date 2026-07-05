@@ -24,20 +24,22 @@ struct GamesHubView: View {
                 .padding(.top, 40)
                 .padding(.bottom, 35)
                 
-                VStack(spacing: 30) {
-                    NavigationLink(destination: Text("Tap Frenzy Game View")) {
+                VStack(spacing: 40) {
+                    // Navigate to Tap Frenzy
+                    NavigationLink(destination: TapFrenzyView()) {
                         GameButton(title: "Tap Frenzy", subtitle: "Fast-paced clicking action!", icon: "hand.tap.fill", color: .blue)
                     }
                     
-                    NavigationLink(destination: Text("Light It Up Game View")) {
+                    // Navigate to Light It Up
+                    NavigationLink(destination: LightItUpView()) {
                         GameButton(title: "Light It Up", subtitle: "Whack-a-mole precision tiles!", icon: "lightbulb.fill", color: .purple)
                     }
                     
-                    NavigationLink(destination: Text("Quiz Rush Game View")) {
+                    // Navigate to Quiz Rush
+                    NavigationLink(destination: QuizView()) {
                         GameButton(title: "Quiz Rush", subtitle: "Trivia powered by live API!", icon: "questionmark.circle.fill", color: .orange)
                     }
                 }
-                .padding(.horizontal, 30)
                 
                 Spacer()
             }

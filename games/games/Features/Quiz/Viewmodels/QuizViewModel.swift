@@ -13,13 +13,14 @@ class QuizViewModel: ObservableObject {
     @Published var highScore = UserDefaults.standard.integer(forKey: "QuizHighScore")
     @Published var timeLeft = 15
     
-    // Added property for difficulty selection
     @Published var selectedDifficulty: Difficulty?
     
     let questionCount = 10
     private var timer: AnyCancellable?
-    
     private let service = QuizService()
+    
+    // Added SessionManager
+    private let sessionManager = SessionManager()
     
     @MainActor
     func load() async {
@@ -29,7 +30,6 @@ class QuizViewModel: ObservableObject {
         currentIndex = 0
         
         do {
-            // Pass the selected difficulty rawValue to the service
             self.questions = try await service.fetchQuestions(difficulty: selectedDifficulty?.rawValue)
             self.questions = Array(self.questions.prefix(questionCount))
             self.state = .loaded
@@ -77,6 +77,19 @@ class QuizViewModel: ObservableObject {
         } else {
             timer?.cancel()
             state = .finished
+            // Save the session when the quiz finishes
+            saveGameSession()
         }
+    }
+    
+    private func saveGameSession() {
+        let newSession = GameSession(
+            mode: "Quiz - \(selectedDifficulty?.rawValue ?? "General")",
+            score: score,
+            timestamp: Date(),
+            latitude: 6.9271, // Example coordinates (Colombo)
+            longitude: 79.8612
+        )
+        sessionManager.save(newSession)
     }
 }
