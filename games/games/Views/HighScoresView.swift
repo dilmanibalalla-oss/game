@@ -5,26 +5,39 @@ struct HighScoresView: View {
     @AppStorage(HighScoreKeys.lightItUp) private var lightItUpHighScore = 0
     @AppStorage(HighScoreKeys.quiz) private var quizHighScore = 0
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.pink.opacity(0.2).ignoresSafeArea()
+        ZStack {
+            // Gradient Background
+            LinearGradient.skyBackground
+                .ignoresSafeArea()
+
+            VStack(spacing: 20) {
+                Text("High Scores")
+                    .font(AppFonts.pageTitle)
+                    .foregroundColor(.white)
+                    .padding(.top, 20)
+
+                VStack(spacing: 15) {
+                    HighScoreRow(title: "Tap Frenzy", icon: "hand.tap.fill", color: .blue, score: tapFrenzyHighScore, panelTint: AppColors.panelTint, lavenderColor: AppColors.skyMid)
+                    HighScoreRow(title: "Light It Up", icon: "lightbulb.fill", color: .purple, score: lightItUpHighScore, panelTint: AppColors.panelTint, lavenderColor: AppColors.skyMid)
+                    HighScoreRow(title: "Quiz Rush", icon: "questionmark.circle.fill", color: .orange, score: quizHighScore, panelTint: AppColors.panelTint, lavenderColor: AppColors.skyMid)
+                }
+                .padding(.horizontal)
                 
-                VStack(spacing: 20) {
-                    HighScoreRow(title: "Tap Frenzy", icon: "hand.tap.fill", color: .blue, score: tapFrenzyHighScore)
-                    HighScoreRow(title: "Light It Up", icon: "lightbulb.fill", color: .purple, score: lightItUpHighScore)
-                    HighScoreRow(title: "Quiz Rush", icon: "questionmark.circle.fill", color: .orange, score: quizHighScore)
-                    Spacer()
+                Spacer()
+                
+                Button(action: { dismiss() }) {
+                    Text("Done")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(AppColors.skyMid)
+                        .cornerRadius(15)
+                        .shadow(radius: 3)
                 }
                 .padding()
-            }
-            .navigationTitle("High Scores")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
             }
         }
     }
@@ -35,28 +48,33 @@ private struct HighScoreRow: View {
     let icon: String
     let color: Color
     let score: Int
+    let panelTint: Color
+    let lavenderColor: Color
     
     var body: some View {
         HStack {
             Image(systemName: icon)
                 .font(.title)
+                .foregroundColor(lavenderColor) // Updated to Lavender
+                .frame(width: 50)
+            
             VStack(alignment: .leading) {
                 Text(title)
-                    .font(.title2.bold())
+                    .font(AppFonts.rowTitle)
                 Text("Best score")
                     .font(.caption)
-                    .opacity(0.8)
+                    .opacity(0.6)
             }
+            
             Spacer()
+            
             Text("\(score)")
-                .font(.title.bold())
+                .font(AppFonts.scoreValue)
+                .foregroundColor(color)
         }
         .padding()
-        .frame(maxWidth: .infinity)
-        .background(color)
-        .foregroundColor(.white)
-        .cornerRadius(15)
-        .shadow(radius: 5)
-        .overlay(RoundedRectangle(cornerRadius: 15).stroke(Color.black, lineWidth: 2))
+        .background(panelTint)
+        .cornerRadius(20)
+        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 5)
     }
 }

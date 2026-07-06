@@ -3,7 +3,7 @@ import Combine
 import CoreLocation
 
 class TapFrenzyViewModel: ObservableObject {
-    // Game State
+    
     @Published var score: Int = 0
     @Published var level: Int = 1
     @Published var comboMultiplier: Int = 1
@@ -11,42 +11,65 @@ class TapFrenzyViewModel: ObservableObject {
     @Published var ballColor: Color = .blue
     @Published var ballScale: CGFloat = 1.0
     @Published var isGameOver: Bool = false
+    @Published var showDoubleDash = false
+    @Published var doubleDashPosition: CGPoint = CGPoint(x: 200, y: 300)
     
-    // Internal Logic
+    
     private var lastTapTime: Date = .distantPast
     private var comboTimer: AnyCancellable?
     private var gameTimer: AnyCancellable?
+    private var bonusMoveTimer: Timer?
+    private var doubleDashShowTimer: Timer?
+    private var doubleDashHideTimer: Timer?
     
-    // Added Location Support
     private let locationManager = LocationManager.shared
     
     private var roundTimeLeft: Double = 10.0
     private var currentRound: Int = 1
     private var isBonusActive: Bool = false
+    private var doubleDashUsedThisRound = false
     
     init() {
-        locationManager.requestPermissions() // Request on init
+        locationManager.requestPermissions()
+    }
+    
+    func startGame() {
+        score = 0
+        level = 1
+        currentRound = 1
+        isGameOver = false
         startRound()
     }
     
     func processClick(isInsideBall: Bool) {
         if isInsideBall {
-            let now = Date()
-            if now.timeIntervalSince(lastTapTime) < 0.5 {
-                comboMultiplier = min(comboMultiplier + 1, 10)
-            } else {
+            // If the ball is gray, punish the user for clicking it
+            if !isBonusActive {
+                score = max(0, score - 50)
                 comboMultiplier = 1
+            } else {
+                // Normal scoring logic for green balls
+                let now = Date()
+                if now.timeIntervalSince(lastTapTime) < 0.5 {
+                    comboMultiplier = min(comboMultiplier + 1, 10)
+                } else {
+                    comboMultiplier = 1
+                }
+                lastTapTime = now
+                score += (200 * comboMultiplier)
             }
-            lastTapTime = now
-            
-            let points = isBonusActive ? 200 : 100
-            score += (points * comboMultiplier)
-            
             moveBall()
         } else {
+            // Tapped outside
             comboMultiplier = 1
             score = max(0, score - 50)
         }
+    }
+    func processDoubleDashClick() {
+        guard showDoubleDash else { return }
+        score *= 2
+        doubleDashUsedThisRound = true
+        hideDoubleDash()
     }
     
     private func moveBall() {
@@ -57,8 +80,40 @@ class TapFrenzyViewModel: ObservableObject {
         }
     }
     
+    private func randomDashPosition() -> CGPoint {
+        CGPoint(
+            x: CGFloat.random(in: 60...340),
+            y: CGFloat.random(in: 120...650)
+        )
+    }
+    
+    private func hideDoubleDash() {
+        showDoubleDash = false
+        doubleDashHideTimer?.invalidate()
+        doubleDashHideTimer = nil
+    }
+    
+    private func scheduleDoubleDash() {
+        doubleDashUsedThisRound = false
+        doubleDashShowTimer?.invalidate()
+        doubleDashHideTimer?.invalidate()
+        
+        let delay = Double.random(in: 1.0...6.0)
+        doubleDashShowTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { [weak self] _ in
+            guard let self = self, !self.isGameOver, !self.doubleDashUsedThisRound else { return }
+            self.doubleDashPosition = self.randomDashPosition()
+            withAnimation(.spring()) {
+                self.showDoubleDash = true
+            }
+            self.doubleDashHideTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { [weak self] _ in
+                self?.hideDoubleDash()
+            }
+        }
+    }
+    
     private func startRound() {
         roundTimeLeft = 10.0
+        scheduleDoubleDash()
         
         gameTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect().sink { [weak self] _ in
             guard let self = self else { return }
@@ -70,17 +125,39 @@ class TapFrenzyViewModel: ObservableObject {
             }
         }
         
-        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
-            let isBonus = Bool.random()
-            self.ballColor = isBonus ? .green : .gray
-            self.isBonusActive = isBonus
-            self.moveBall()
-        }
+        bonusMoveTimer?.invalidate()
+            bonusMoveTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+                guard let self = self else { return }
+                
+                // 1. Determine new state
+                let isBonus = Bool.random()
+                
+                // 2. Apply penalty ONLY if it just turned grey
+                if !isBonus && self.isBonusActive {
+                    // Optional: Only penalize if it was previously NOT grey
+                }
+                
+                // Update properties
+                self.ballColor = isBonus ? .green : .gray
+                self.isBonusActive = isBonus
+                
+                // If it turned gray, apply the penalty immediately
+                if !isBonus {
+                    self.score = max(0, self.score - 50)
+                }
+                
+                self.moveBall()
+            }
     }
     
     private func endRound() {
         gameTimer?.cancel()
+        bonusMoveTimer?.invalidate()
+        bonusMoveTimer = nil
+        doubleDashShowTimer?.invalidate()
+        doubleDashShowTimer = nil
+        hideDoubleDash()
+        
         if currentRound < 3 {
             currentRound += 1
             level = currentRound
@@ -114,10 +191,12 @@ class TapFrenzyViewModel: ObservableObject {
     }
     
     func resetGame() {
-        score = 0
-        level = 1
-        currentRound = 1
-        isGameOver = false
-        startRound()
+        gameTimer?.cancel()
+        bonusMoveTimer?.invalidate()
+        bonusMoveTimer = nil
+        doubleDashShowTimer?.invalidate()
+        doubleDashShowTimer = nil
+        hideDoubleDash()
+        startGame()
     }
 }

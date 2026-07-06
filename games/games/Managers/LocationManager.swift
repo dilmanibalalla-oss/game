@@ -24,12 +24,16 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             longitude: defaults.double(forKey: Self.lastKnownLonKey)
         )
     }
+    
+    var effectiveCoordinate: CLLocationCoordinate2D? {
+        lastLocation?.coordinate ?? lastKnownCoordinate
+    }
  
     override init() {
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBest
-        // Set the initial status
+       
         self.authorizationStatus = manager.authorizationStatus
     }
  

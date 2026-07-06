@@ -1,93 +1,77 @@
-//
-//  GamesHubView.swift
-//  games
-//
-//  Created by student5 on 2026-07-05.
-//
-
 import SwiftUI
 
 struct GamesHubView: View {
     @State private var showHighScores = false
-    
+    @State private var shimmer = false
+
     var body: some View {
         ZStack {
-            Color.pink.opacity(0.2).ignoresSafeArea()
+            // Full Screen Background Image
+            Image("sky")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
             
             VStack(spacing: 25) {
-                VStack(spacing: 20) {
-                    Text("Games Hub")
-                        .font(.system(size: 50, weight: .black, design: .rounded))
-                    
-                    Text("Select a Game to Play")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.secondary)
-                }
-                .padding(.top, 40)
-                .padding(.bottom, 35)
+                Text("Games Hub")
+                    .font(AppFonts.pageTitle)
+                    .foregroundColor(.white)
+                    .padding(.top, 40)
+                Text("Tap the games to play")
+                    .font(AppFonts.sectionTitle)
+                    .foregroundColor(.white)
+                   
                 
-                VStack(spacing: 40) {
-                    NavigationLink(destination: TapFrenzyView()) {
-                        GameButton(title: "Tap Frenzy", subtitle: "Fast-paced clicking action!", icon: "hand.tap.fill", color: .blue)
-                    }.padding(10)
-                    
-                    NavigationLink(destination: LightItUpView()) {
-                        GameButton(title: "Light It Up", subtitle: "Whack-a-mole precision tiles!", icon: "lightbulb.fill", color: .purple)
-                    }.padding(10)
-                    
-                    NavigationLink(destination: QuizView()) {
-                        GameButton(title: "Quiz Rush", subtitle: "Trivia powered by live API!", icon: "questionmark.circle.fill", color: .orange)
-                    }.padding(10)
+                VStack(spacing: 20) {
+                    gameNavLink(destination: TapFrenzyView(), title: "Tap Frenzy", icon: "hand.tap.fill")
+                    gameNavLink(destination: LightItUpView(), title: "Light It Up", icon: "lightbulb.fill")
+                    gameNavLink(destination: QuizView(), title: "Quiz Rush", icon: "questionmark.circle.fill")
                     
                     Button { showHighScores = true } label: {
-                        GameButton(title: "High Scores", subtitle: "Your best scores across all games", icon: "trophy.fill", color: .green)
+                        gameButtonContent(title: "High Scores", icon: "trophy.fill")
                     }
-                    .padding(10)
+                    .padding(.horizontal)
                 }
-                
                 Spacer()
             }
         }
-        .onAppear { HighScoreKeys.migrateIfNeeded() }
-        .sheet(isPresented: $showHighScores) {
-            HighScoresView()
+        .onAppear {
+            shimmer = true
+            HighScoreKeys.migrateIfNeeded()
         }
+        .sheet(isPresented: $showHighScores) { HighScoresView() }
     }
-}
 
-// Helper View
-struct GameButton: View {
-    let title: String
-    let subtitle: String
-    let icon: String
-    let color: Color
-    
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .font(.title)
+    @ViewBuilder
+    func gameNavLink<V: View>(destination: V, title: String, icon: String) -> some View {
+        NavigationLink(destination: destination) {
+            gameButtonContent(title: title, icon: icon)
+        }
+        .padding(.horizontal)
+    }
+
+    @ViewBuilder
+    func gameButtonContent(title: String, icon: String) -> some View {
+        HStack(spacing: 15) {
+            Image(systemName: icon).font(.title).foregroundStyle(AppColors.skyMid)
             VStack(alignment: .leading) {
-                Text(title)
-                    .font(.title2).bold()
-                Text(subtitle)
-                    .font(.caption)
-                    .opacity(0.8)
+                Text(title).font(.title2).bold().foregroundStyle(AppColors.textPrimary)
+                Text("Tap the games to play")
+                    .font(.caption).bold().foregroundStyle(AppColors.skyMid)
             }
             Spacer()
-            Image(systemName: "chevron.right")
+            Image(systemName: "chevron.right").foregroundStyle(AppColors.textPrimary.opacity(0.5))
         }
         .padding()
-        .frame(maxWidth: .infinity)
-        .background(color)
-        .foregroundColor(.white)
-        .cornerRadius(15)
-        .shadow(radius: 5)
-        .overlay(RoundedRectangle(cornerRadius: 15).stroke(Color.black, lineWidth: 2))
+        .background(RoundedRectangle(cornerRadius: 20).fill(AppColors.cardBg))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(LinearGradient(colors: [.clear, .white.opacity(0.4), .clear], startPoint: .leading, endPoint: .trailing))
+                .offset(x: shimmer ? 300 : -300)
+                .rotationEffect(.degrees(20))
+                .animation(.linear(duration: 2.0).repeatForever(autoreverses: false), value: shimmer)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 5)
     }
-        
-}
-
-#Preview{
-    
-    GamesHubView()
 }

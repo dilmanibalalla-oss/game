@@ -11,6 +11,13 @@ struct QuizView: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                // Background Image
+                Image("star")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .ignoresSafeArea()
+                
+                // Dimming overlay so text remains readable
                 Color.pink.opacity(0.2).ignoresSafeArea()
                 
                 if !hasSelectedDifficulty {

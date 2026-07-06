@@ -1,6 +1,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    init() {
+       
+        let appearance = UITabBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundColor = UIColor.white.withAlphaComponent(0.2)
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+
     var body: some View {
         TabView {
             NavigationStack {
@@ -19,7 +28,6 @@ struct ContentView: View {
             
             NavigationStack {
                 MapView()
-                    .navigationTitle("Map of Games")
             }
             .tabItem {
                 Label("Map", systemImage: "map.fill")
@@ -27,12 +35,12 @@ struct ContentView: View {
             
             NavigationStack {
                 SettingsView()
-                    .navigationTitle("Settings")
             }
             .tabItem {
                 Label("Settings", systemImage: "gearshape.fill")
             }
         }
+        .tint(AppColors.skyHorizon)
     }
 }
 

@@ -1,10 +1,3 @@
-//
-//  SettingsView.swift
-//  games
-//
-//  Created by student5 on 2026-07-05.
-//
-
 import SwiftUI
 
 struct SettingsView: View {
@@ -17,39 +10,68 @@ struct SettingsView: View {
     @State private var showResetConfirmation = false
     
     private let sessionManager = SessionManager()
-    
+
     var body: some View {
-        Form {
-            Section("Daily Challenge") {
-                Toggle("Notifications", isOn: $notificationsEnabled)
-                    .onChange(of: notificationsEnabled) { _, enabled in
-                        if enabled {
-                            notificationManager.requestPermission()
-                            scheduleDailyChallenge()
-                        } else {
-                            notificationManager.cancelDailyNotification()
+        ZStack {
+            Image("sky")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+
+            VStack(spacing: 20) {
+                Text("Settings")
+                    .font(AppFonts.pageTitle)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 40) // Added more top padding to pull content down
+
+                Spacer() // Pushes the form toward the vertical center
+
+                Form {
+                    Section {
+                        Toggle("Notifications", isOn: $notificationsEnabled)
+                            .bold()
+                            .foregroundStyle(AppColors.textPrimary)
+                            .onChange(of: notificationsEnabled) { _, enabled in
+                                if enabled {
+                                    notificationManager.requestPermission()
+                                    scheduleDailyChallenge()
+                                } else {
+                                    notificationManager.cancelDailyNotification()
+                                }
+                            }
+                        
+                        if notificationsEnabled {
+                            DatePicker("Daily Challenge Time", selection: $selectedTime, displayedComponents: .hourAndMinute)
+                                .bold()
+                                .foregroundStyle(AppColors.textPrimary)
+                                .onChange(of: selectedTime) { _, newTime in
+                                    saveTime(newTime)
+                                    scheduleDailyChallenge()
+                                }
                         }
+                    } header: {
+                        Text("Daily Challenge").bold().foregroundStyle(.white.opacity(0.8))
                     }
+                    
+                    Section {
+                        Button("Reset All Stats", role: .destructive) {
+                            showResetConfirmation = true
+                        }
+                        .bold()
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .listStyle(.insetGrouped)
+                // This modifier creates the "3D" card effect on each row
+                .environment(\.defaultMinListRowHeight, 55)
                 
-                if notificationsEnabled {
-                    DatePicker(
-                        "Daily Challenge Time",
-                        selection: $selectedTime,
-                        displayedComponents: .hourAndMinute
-                    )
-                    .onChange(of: selectedTime) { _, newTime in
-                        saveTime(newTime)
-                        scheduleDailyChallenge()
-                    }
-                }
-            }
-            
-            Section {
-                Button("Reset All Stats", role: .destructive) {
-                    showResetConfirmation = true
-                }
+                Spacer() // Balances the vertical spacing
             }
         }
+        .navigationBarHidden(true)
         .onAppear {
             loadSavedTime()
             if notificationsEnabled {

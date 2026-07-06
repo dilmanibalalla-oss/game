@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import CoreLocation
 
 enum QuizState { case loading, loaded, failed, finished }
 
@@ -22,6 +23,7 @@ class QuizViewModel: ObservableObject {
     
     // Added SessionManager
     private let sessionManager = SessionManager()
+    private let locationManager = LocationManager.shared
     
     @MainActor
     func load() async {
@@ -90,13 +92,15 @@ class QuizViewModel: ObservableObject {
     }
     
     private func saveGameSession() {
-        let coords = sessionManager.generateGridCoordinates() // Use the new grid system
+        let coord = locationManager.lastLocation?.coordinate ?? locationManager.lastKnownCoordinate
+        let fallbackLat = 6.9271
+        let fallbackLon = 79.8612
         let newSession = GameSession(
-            mode: "Quiz - \(selectedDifficulty?.rawValue ?? "General")",
+            mode: "Quiz",
             score: score,
             timestamp: Date(),
-            latitude: coords.lat,
-            longitude: coords.lon
+            latitude: coord?.latitude ?? fallbackLat,
+            longitude: coord?.longitude ?? fallbackLon
         )
         sessionManager.save(newSession)
     }
