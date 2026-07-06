@@ -15,6 +15,15 @@ enum AppColors {
     static let chartColors: [Color] = [
         skyTop, skyHorizon, skyMid, cloudTint, Color(hex: "8A81C6")
     ]
+
+    static let tapFrenzy = Color(hex: "00204A")
+ 
+    static let tapFrenzy2 = Color(hex: "FFFFFF")
+    static let lightItUp = Color(hex: "7BB369")
+    static let lightItUp2 = Color(hex: "FFFFFF")
+    static let quiz = Color(hex: "FFD1DC")
+    static let quiz2 = Color(hex: "FFFFFF")
+
 }
 
 extension Color {

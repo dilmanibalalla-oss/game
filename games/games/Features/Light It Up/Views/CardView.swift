@@ -1,33 +1,37 @@
 import SwiftUI
+
 struct CardView: View {
     let card: Card
-    let level: Int
-    let round: Int
-    
-    private var litColor: Color {
-        switch level {
-        case 1: return .blue
-        case 2: return (card.id % 2 == 0) ? .blue : .red
-        case 3:
-            let colors: [Color] = [.blue, .red, .green]
-            return colors[card.id % 3]
-        default:
-            let colors: [Color] = [.blue, .red, .green, .purple, .orange]
-            return colors[card.id % colors.count]
-        }
-    }
-    
+    let onTap: () -> Void
+
+    private let holeBrown = Color(red: 0.35, green: 0.20, blue: 0.10)
+    private let holeDarker = Color(red: 0.20, green: 0.12, blue: 0.05)
+
     var body: some View {
-        let glow = card.isLit ? CGFloat(10 + (level * 5)) : 0
-        
-        RoundedRectangle(cornerRadius: 12)
-            .fill(card.isLit ? litColor : Color.gray.opacity(0.2))
-            .shadow(color: card.isLit ? litColor.opacity(0.6) : .clear, radius: glow)
-            .scaleEffect(card.isLit ? 1.05 : 1.0)
-            .animation(.spring(response: 0.2, dampingFraction: 0.6), value: card.isLit)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(card.isLit ? litColor : Color.gray.opacity(0.4), lineWidth: 2)
-            )
+        ZStack {
+            Circle()
+                .fill(RadialGradient(
+                    gradient: Gradient(colors: [holeBrown, holeDarker]),
+                    center: .center,
+                    startRadius: 5,
+                    endRadius: 50
+                ))
+
+            if card.isLit {
+              
+                let activeColor = card.litColor ?? .yellow
+                
+                Circle()
+                    .fill(activeColor.opacity(0.9))
+                    .blur(radius: 8)
+                Circle()
+                    .fill(Color.white.opacity(0.6))
+                    .padding(10)
+            }
+        }
+        .overlay(Circle().stroke(Color.black.opacity(0.8), lineWidth: 6))
+        .padding(10)
+        .aspectRatio(1.0, contentMode: .fit)
+        .onTapGesture(perform: onTap)
     }
 }

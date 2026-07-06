@@ -117,7 +117,6 @@ struct MapView: View {
         }
     }
 
-    // MARK: - Logic Functions
     private func centerOnUser() {
         guard let coord = locationManager.effectiveCoordinate else { return }
         withAnimation { region = MKCoordinateRegion(center: coord, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)) }

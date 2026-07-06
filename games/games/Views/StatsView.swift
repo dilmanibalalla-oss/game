@@ -7,14 +7,14 @@ struct StatsView: View {
 
     var body: some View {
         ZStack {
-            // Background Image
+          
             Image("sky")
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
 
             VStack(spacing: 20) {
-                // Centered Title
+                
                 Text("Statistics")
                     .font(AppFonts.pageTitle)
                     .foregroundColor(.white)

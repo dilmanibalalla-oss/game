@@ -6,7 +6,7 @@ struct GamesHubView: View {
 
     var body: some View {
         ZStack {
-            // Full Screen Background Image
+           
             Image("sky")
                 .resizable()
                 .scaledToFill()

@@ -22,9 +22,7 @@ struct QuizView: View {
                 
                 if !hasSelectedDifficulty {
                     VStack(spacing: 25) {
-                        Text("Quiz Settings")
-                            .font(.system(size: 32, weight: .black, design: .rounded))
-                            .foregroundColor(.pink)
+                        GameTitleHeader(title: "Quiz Settings", textColor: AppColors.quiz)
                         
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Select Category")
@@ -64,21 +62,11 @@ struct QuizView: View {
                         }
                         .padding(.horizontal)
                         
-                        Button(action: {
+                        GameButton(title: "Start Quiz", accentColor: AppColors.quiz) {
                             viewModels.selectedCategory = selectedCategory
                             viewModels.selectedDifficulty = selectedDifficulty
                             hasSelectedDifficulty = true
-                        }) {
-                            Text("Start Quiz")
-                                .font(.title3.bold())
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.pink)
-                                .cornerRadius(15)
-                                .shadow(radius: 5)
                         }
-                        .padding(.horizontal)
                         .padding(.top, 20)
                     }
                     .padding()
@@ -92,16 +80,19 @@ struct QuizView: View {
                         case .failed:
                             VStack(spacing: 20) {
                                 Text("Network Error").font(.title).bold()
-                                Button("Retry") { Task { await viewModels.load() } }
-                                    .buttonStyle(.borderedProminent)
+                                GameButton(title: "Retry", accentColor: AppColors.quiz) {
+                                    Task { await viewModels.load() }
+                                }
                             }
                             
                         case .finished:
                             VStack(spacing: 20) {
-                                Text("Quiz Finished!").font(.largeTitle).bold()
+                                GameOverHeader(title: "Quiz Finished!")
                                 Text("Final Score: \(viewModels.score)").font(.title)
                                 ShareLink(item: "I just scored \(viewModels.score) on Quiz Rush, beat that!")
-                                Button("Restart") { hasSelectedDifficulty = false }
+                                GameButton(title: "Restart", accentColor: AppColors.quiz) {
+                                    hasSelectedDifficulty = false
+                                }
                             }
                             
                         case .loaded:
@@ -201,12 +192,12 @@ struct QuizView: View {
                     }
                 }
                 
-                // Color flash overlay for correct answers
+        
                 Color.green.opacity(flashOpacity)
                     .ignoresSafeArea()
                     .allowsHitTesting(false)
             }
-            .navigationTitle("Quiz Rush")
+          
         }
     }
 }

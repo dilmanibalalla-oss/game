@@ -11,15 +11,12 @@ struct TapFrenzyView: View {
                 .scaledToFill()
                 .ignoresSafeArea()
             
-            // Adding a dark overlay for better text contrast against the image
             Color.black.opacity(0.4)
                 .ignoresSafeArea()
             
             if !hasStarted {
                 VStack(spacing: 25) {
-                    Text("Tap Frenzy")
-                        .font(.system(size: 32, weight: .black, design: .rounded))
-                        .foregroundColor(.white)
+                    GameTitleHeader(title: "Tap Frenzy", textColor: AppColors.tapFrenzy2)
                     
                     Text("Tap the ball, build combos, and catch the 2x dash once per round!")
                         .font(.subheadline)
@@ -27,20 +24,10 @@ struct TapFrenzyView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                     
-                    Button {
+                    GameButton(title: "Start Game", accentColor: AppColors.tapFrenzy) {
                         hasStarted = true
                         viewModel.startGame()
-                    } label: {
-                        Text("Start Game")
-                            .font(.title3.bold())
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .cornerRadius(15)
-                            .shadow(radius: 5)
                     }
-                    .padding(.horizontal)
                 }
                 .padding()
             } else if !viewModel.isGameOver {
@@ -106,23 +93,14 @@ struct TapFrenzyView: View {
                 }
             } else {
                 VStack(spacing: 20) {
-                    Text("Game Over!")
-                        .font(.largeTitle.bold())
-                        .foregroundColor(.white)
+                    GameOverHeader(title: "Game Over!", textColor: .white)
                     Text("Final Score: \(viewModel.score)")
                         .font(.title)
                         .foregroundColor(.white)
                     ShareLink(item: "I just scored \(viewModel.score) on Tap Frenzy, beat that!")
                         .foregroundColor(.white)
-                    Button(action: {
+                    GameButton(title: "Play Again", accentColor: AppColors.tapFrenzy) {
                         viewModel.resetGame()
-                    }) {
-                        Text("Play Again")
-                            .font(.headline)
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
                     }
                 }
             }
