@@ -108,7 +108,6 @@ struct QuizView: View {
                                     }
                                     .padding(.horizontal)
                                     
-                                    // 3 of 10 Progress Bar and Streak
                                     VStack(spacing: 8) {
                                         HStack {
                                             Text("Question \(viewModels.currentIndex + 1) of \(viewModels.questions.count)")

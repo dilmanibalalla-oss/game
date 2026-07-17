@@ -131,9 +131,7 @@ class TapFrenzyViewModel: ObservableObject {
                 // 1. Determine new state
                 let isBonus = Bool.random()
                 
-                // 2. Apply penalty ONLY if it just turned grey
                 if !isBonus && self.isBonusActive {
-                    // Optional: Only penalize if it was previously NOT grey
                 }
                 
                 // Update properties

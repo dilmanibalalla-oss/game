@@ -2,14 +2,12 @@ import UserNotifications
 import SwiftUI
 import Combine
 
-// 1. Order: Inherit from NSObject first, then the protocols
 class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
     
     private let center = UNUserNotificationCenter.current()
     
     override init() {
         super.init()
-        // 2. Set the delegate so the app can handle notifications while open
         center.delegate = self
     }
 

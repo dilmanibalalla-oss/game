@@ -84,11 +84,12 @@ The `/Managers` directory contains shared application services such as:
 - `LocationManager`
 - `NotificationManager`
 - `SettingsManager`
+- `SoundsManager`
 
 ## Shared Logic
 
-- Place shared services in `/Managers`.
-- Place shared models in `/Models`.
+-  shared services in `/Managers`.
+- shared models in `/Models`.
 
 ## UI Components
 
@@ -111,11 +112,11 @@ Create a new folder in the root `/Games` directory using the name of the new gam
 
 ## 2. Create the Standard Structure
 
-```text
+
 /GameName
 ├── /ViewModels
 └── /Views
-```
+
 
 ## 3. Add Game Logic
 
