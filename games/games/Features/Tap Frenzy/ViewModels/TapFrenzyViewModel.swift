@@ -43,12 +43,10 @@ class TapFrenzyViewModel: ObservableObject {
     
     func processClick(isInsideBall: Bool) {
         if isInsideBall {
-            // If the ball is gray, punish the user for clicking it
             if !isBonusActive {
                 score = max(0, score - 50)
                 comboMultiplier = 1
             } else {
-                // Normal scoring logic for green balls
                 let now = Date()
                 if now.timeIntervalSince(lastTapTime) < 0.5 {
                     comboMultiplier = min(comboMultiplier + 1, 10)
@@ -57,6 +55,7 @@ class TapFrenzyViewModel: ObservableObject {
                 }
                 lastTapTime = now
                 score += (200 * comboMultiplier)
+                SoundManager.shared.playGreenTap()
             }
             moveBall()
         } else {

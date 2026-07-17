@@ -14,7 +14,6 @@ struct GameSession: Codable, Identifiable {
     }
 }
 
-// Helper to group sessions by location
 struct SessionCluster: Identifiable {
     let id = UUID()
     let coordinate: CLLocationCoordinate2D

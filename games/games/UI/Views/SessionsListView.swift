@@ -4,7 +4,6 @@ struct SessionListView: View {
     let cluster: SessionCluster
     @Environment(\.dismiss) var dismiss
     
-    // Group sessions by mode/game name
     private var groupedSessions: [String: [GameSession]] {
         Dictionary(grouping: cluster.sessions) { $0.mode }
     }

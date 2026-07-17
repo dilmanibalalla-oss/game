@@ -23,9 +23,9 @@ struct SettingsView: View {
                     .font(AppFonts.pageTitle)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top, 40) // Added more top padding to pull content down
+                    .padding(.top, 40)
 
-                Spacer() // Pushes the form toward the vertical center
+                Spacer()
 
                 Form {
                     Section {
@@ -65,10 +65,9 @@ struct SettingsView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
                 .listStyle(.insetGrouped)
-                // This modifier creates the "3D" card effect on each row
                 .environment(\.defaultMinListRowHeight, 55)
                 
-                Spacer() // Balances the vertical spacing
+                Spacer() 
             }
         }
         .navigationBarHidden(true)

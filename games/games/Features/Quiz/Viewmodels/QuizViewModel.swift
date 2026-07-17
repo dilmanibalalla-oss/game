@@ -73,9 +73,11 @@ class QuizViewModel: ObservableObject {
                 highScore = score
                 UserDefaults.standard.set(highScore, forKey: HighScoreKeys.quiz)
             }
+            SoundManager.shared.playCorrect()
         } else {
             generator.notificationOccurred(.error)
             streak = 0
+            SoundManager.shared.playIncorrect()
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

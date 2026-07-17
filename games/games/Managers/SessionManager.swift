@@ -1,4 +1,3 @@
-// Managers/SessionManager.swift
 import Foundation
 
 class SessionManager {
@@ -25,8 +24,7 @@ class SessionManager {
         HighScoreKeys.resetAll()
     }
     func generateGridCoordinates() -> (lat: Double, lon: Double) {
-        // Defines a grid around Colombo, Sri Lanka (latitude: 6.9271, longitude: 79.8612)
-        // Steps of 0.05 within a 0.5 span
+        
         let latGrid = stride(from: 6.7, through: 7.1, by: 0.05).map { $0 }
         let lonGrid = stride(from: 79.6, through: 80.1, by: 0.05).map { $0 }
         let lat = latGrid.randomElement() ?? 6.9271

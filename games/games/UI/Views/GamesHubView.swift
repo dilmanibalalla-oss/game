@@ -39,7 +39,7 @@ struct GamesHubView: View {
             shimmer = true
             HighScoreKeys.migrateIfNeeded()
         }
-        .sheet(isPresented: $showHighScores) { HighScoresView() }
+        .fullScreenCover(isPresented: $showHighScores) { HighScoresView() }
     }
 
     @ViewBuilder

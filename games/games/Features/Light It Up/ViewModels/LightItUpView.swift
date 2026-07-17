@@ -103,9 +103,11 @@ struct LightItUpView: View {
             score += (10 * currentLevel.levelNumber * round)
             cards[index].isLit = false
             cards[index].litColor = nil
+            SoundManager.shared.playCorrect()
         } else {
             lives -= 1
             if lives <= 0 { endGame() }
+            SoundManager.shared.playIncorrect()
         }
     }
 
